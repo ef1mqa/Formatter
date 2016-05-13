@@ -5,32 +5,43 @@ import com.efimov.pack.interfaces.interfaceFormatter;
  */
 public class Formatter implements interfaceFormatter {
 public Formatter(){};
-    public void formatter(String unformattedCode){
+    public void formatter(String unformattedCode) {
         String formattedCode = "";
         char[] chars = unformattedCode.toCharArray();
-        unformattedCode = null;
+        unformattedCode = "";
         int count = 0;
         for (int i = 0; i < chars.length; i++) {
-            if (chars[i] != '{' & chars[i] != ';' & chars[i] != '}') formattedCode = formattedCode + (String.valueOf(chars[i]));
-            else if (chars[i] == '{') {
-                count++;
-                formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
-                for (int j = 0; j < count; j++)
+            switch (chars[i]) {
+                case '{':
+                    count++;
+                    formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
                     formattedCode = formattedCode + "    ";
-            }
-            else if (chars[i] == ';') {
-                formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
-                for (int j = 0; j < count; j++)
-                    formattedCode = formattedCode + "    ";
-            }
-            else if (chars[i] == '}') {
-                count--;
-                formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
-                for (int j = 0; j < count; j++)
-                    formattedCode = formattedCode + "    ";
+                    for (int j = 0; j < count - 1; j++)
+                        formattedCode = formattedCode + "    ";
+                    break;
+                case ';':
+                    formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
+                    for (int j = 0; j < count; j++)
+                        formattedCode = formattedCode + "    ";
+                    break;
+                case '}':
+                    count--;
+                    int nextElem = 0;
+                    if (i < chars.length - 1) {
+                        nextElem = i + 1;
+                    }
+                        if (nextElem > 0 & chars[nextElem] != ';') {
+                            formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
+                            for (int j = 0; j < count; j++)
+                                formattedCode = formattedCode + "    ";
+                        } else formattedCode = formattedCode + (String.valueOf(chars[i]));
+                    break;
+                default:
+                    formattedCode = formattedCode + (String.valueOf(chars[i]));
             }
         }
         unformattedCode = formattedCode;
         System.out.print(unformattedCode);
     }
 }
+
