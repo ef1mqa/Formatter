@@ -1,47 +1,69 @@
 package com.efimov.pack.formatter;
-import com.efimov.pack.interfaces.interfaceFormatter;
+import com.efimov.pack.reader.IReader.IReader;
+import com.efimov.pack.reader.MyReaderException;
+import com.efimov.pack.writer.IWriter.IWriter;
+import com.efimov.pack.writer.MyIOWriterException;
+
 /**
- * Created by andrey on 07.05.16.
+ * Formatter to format the source code
  */
-public class Formatter implements interfaceFormatter {
-public Formatter(){};
-    public void formatter(String unformattedCode) {
-        String formattedCode = "";
-        char[] chars = unformattedCode.toCharArray();
-        unformattedCode = "";
+public class Formatter{
+    /**
+     *
+     * @param reader stream reading symbol
+     * @param writer stream writing symbol
+     * @throws MyReaderFormatterException
+     * @throws MyIOWriterFormatterException
+     */
+    public void formatter(IReader reader, IWriter writer) throws MyReaderFormatterException, MyIOWriterFormatterException {
         int count = 0;
-        for (int i = 0; i < chars.length; i++) {
-            switch (chars[i]) {
-                case '{':
-                    count++;
-                    formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
-                    formattedCode = formattedCode + "    ";
-                    for (int j = 0; j < count - 1; j++)
-                        formattedCode = formattedCode + "    ";
-                    break;
-                case ';':
-                    formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
-                    for (int j = 0; j < count; j++)
-                        formattedCode = formattedCode + "    ";
-                    break;
-                case '}':
-                    count--;
-                    int nextElem = 0;
-                    if (i < chars.length - 1) {
-                        nextElem = i + 1;
-                    }
-                        if (nextElem > 0 & chars[nextElem] != ';') {
-                            formattedCode = formattedCode + (String.valueOf(chars[i])) + "\n";
-                            for (int j = 0; j < count; j++)
-                                formattedCode = formattedCode + "    ";
-                        } else formattedCode = formattedCode + (String.valueOf(chars[i]));
-                    break;
-                default:
-                    formattedCode = formattedCode + (String.valueOf(chars[i]));
+        char symb;
+        String tab = "    ";
+        String enter = "\n";
+        try {
+            while (reader.hasNext()) {
+                switch (symb = reader.getNext()) {
+                    case '{':
+                        count++;
+                        writer.write(Character.toString(symb));
+                        writer.write(enter);
+                        writer.write(tab);
+                        for (int j = 0; j < count - 1; j++)
+                            writer.write(tab);
+                        break;
+                    case ';':
+                        writer.write(Character.toString(symb));
+                        writer.write(enter);
+                        for (int j = 0; j < count; j++)
+                            writer.write(tab);
+                        break;
+                    case '}':
+                        count--;
+                        writer.write(enter);
+                        for (int j = 0; j < count; j++)
+                            writer.write(tab);
+                        writer.write(Character.toString(symb));
+                        break;
+                    default:
+                        writer.write(Character.toString(symb));
+                }
             }
+        } catch (MyReaderException e) {
+            throw new MyReaderFormatterException("Stream reader can't check next element", e);
+        } catch (MyIOWriterException e) {
+            throw new MyIOWriterFormatterException("Stream writer can't write", e);
         }
-        unformattedCode = formattedCode;
-        System.out.print(unformattedCode);
+
+        try {
+            reader.close();
+        } catch (MyReaderException e) {
+            throw new MyReaderFormatterException("Stream reader can't close", e);
+        }
+        try {
+            writer.close();
+        } catch (MyIOWriterException e) {
+            throw new MyIOWriterFormatterException("Stream writer can't close", e);
+        }
     }
 }
 
